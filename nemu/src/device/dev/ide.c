@@ -29,7 +29,7 @@ make_pio_handler(handler_ide)
 			/* write 4 bytes data to disk */
 			assert(ide_write);
 			buf = read_io_port(IDE_PORT_BASE, 4);
-			fwrite(&buf, 4, 1, disk_fp);
+			assert(fwrite(&buf, 4, 1, disk_fp) == 1);
 
 			byte_cnt += 4;
 			if (byte_cnt == 512)
@@ -82,7 +82,7 @@ make_pio_handler(handler_ide)
 		{
 			/* read 4 bytes data from disk */
 			assert(!ide_write);
-			fread(&buf, 4, 1, disk_fp);
+			assert(fread(&buf, 4, 1, disk_fp) == 1);
 			write_io_port(IDE_PORT_BASE, 4, buf);
 
 			byte_cnt += 4;

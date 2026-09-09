@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+IMAGE="pa-nju-env:latest"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "docker is not installed or not in PATH" >&2
+  exit 1
+fi
+
+if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+  echo "Docker image '$IMAGE' was not found. Build or install the PA/NEMU environment first." >&2
+  exit 1
+fi
+
+if [ "$#" -eq 0 ]; then
+  set -- --testcase add
+elif [[ "$1" != -* ]]; then
+  testcase="$1"
+  shift
+  set -- --testcase "$testcase" "$@"
+fi
+
+docker_flags=(--rm --platform linux/amd64)
+if [ -t 0 ]; then
+  docker_flags+=(-it)
+else
+  docker_flags+=(-i)
+fi
+
+exec docker run "${docker_flags[@]}" \
+  -v "$ROOT_DIR:/work" \
+  -w /work \
+  "$IMAGE" \
+  ./nemu/nemu "$@"
