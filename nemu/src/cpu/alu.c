@@ -126,7 +126,7 @@ void set_OF_sub(uint32_t res, uint32_t src, uint32_t dest, size_t data_size)
     src = sign_ext(src & msk, data_size);
     dest = sign_ext(dest & msk,data_size);
 	if (sign(src) != sign(dest)){
-		if (sign(res) != sign(src))
+		if (sign(res) != sign(dest))
 			cpu.eflags.OF = 1;
 		else 
 			cpu.eflags.OF = 0;
@@ -139,11 +139,9 @@ uint32_t alu_sub(uint32_t src, uint32_t dest, size_t data_size)
 	return __ref_alu_sub(src, dest, data_size);
 #else
 	uint32_t res = dest - src;
-	set_CF_sub(res, src, data_size);
+	set_CF_sub(src, dest, data_size);
 	set_OF_sub(res, src, dest, data_size);
-	set_PF(res);
-	set_ZF(res, data_size);
-	set_SF(res, data_size);
+	set_common_flags(res, data_size);
 
 	return res & mask(data_size);
 #endif
@@ -153,10 +151,10 @@ uint32_t alu_sub(uint32_t src, uint32_t dest, size_t data_size)
 void set_CF_sbb(uint32_t src, uint32_t dest, size_t data_size)
 {
 	uint32_t msk = mask(data_size);
-	res = sign_ext((res & msk),data_size);
 	src = sign_ext((src & msk),data_size);
-	if(cpu.eflags.CF == 1) cpu.eflags.CF = (res <= src);
-    else cpu.eflags.CF = (res < src);
+	dest = sign_ext((dest & msk),data_size);
+	if(cpu.eflags.CF == 1) cpu.eflags.CF = (dest <= src);
+    else cpu.eflags.CF = (dest < src);
 	return;
 }
 void set_OF_sbb(uint32_t res, uint32_t src, uint32_t dest, size_t data_size)
@@ -166,7 +164,7 @@ void set_OF_sbb(uint32_t res, uint32_t src, uint32_t dest, size_t data_size)
     src = sign_ext(src & msk, data_size);
     dest = sign_ext(dest & msk,data_size);
 	if (sign(src) != sign(dest)){
-		if (sign(res) != sign(src))
+		if (sign(res) != sign(dest))
 			cpu.eflags.OF = 1;
 		else 
 			cpu.eflags.OF = 0;
@@ -179,91 +177,95 @@ uint32_t alu_sbb(uint32_t src, uint32_t dest, size_t data_size)
 	return __ref_alu_sbb(src, dest, data_size);
 #else
 	uint32_t res = dest - src - cpu.eflags.CF;
-	set_CF_add(res, src, data_size);
-	set_OF_add(res, src, dest, data_size);
-	set_PF(res);
-	set_ZF(res, data_size);
-	set_SF(res, data_size);
+	set_CF_sbb(src, dest, data_size);
+	set_OF_sbb(res, src, dest, data_size);
+	set_common_flags(res, data_size);
 
 	return res & mask(data_size);
 #endif
 }
 
+//mul
+void set_CF_OF_mul(uint64_t res , size_t data_size){
+    res = res >> data_size;
+    cpu.eflags.CF = (res != 0);
+    cpu.eflags.OF = (res != 0);
+    return;
+}
 uint64_t alu_mul(uint32_t src, uint32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_mul(src, dest, data_size);
 #else
-	uint64_t res = dest * src;
-	set_CF_add(res, src, data_size);
-	set_OF_add(res, src, dest, data_size);
-	set_PF(res);
-	set_ZF(res, data_size);
-	set_SF(res, data_size);
+	uint64_t res =
+    (uint64_t)(dest & mask(data_size)) *
+    (uint64_t)(src & mask(data_size));
+	res = res & (0xFFFFFFFFFFFFFFFF >> (64 - 2*data_size));
+	set_CF_OF_mul(res, data_size);
 
-	return res & mask(data_size);
+	return res;
 #endif
 }
 
+//imul
 int64_t alu_imul(int32_t src, int32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_imul(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	int64_t res = 1;
+	int64_t signed_src =
+    (int32_t)sign_ext((uint32_t)src, data_size);
+	int64_t signed_dest =
+    (int32_t)sign_ext((uint32_t)dest, data_size);
+	res = res * signed_dest * signed_src;
+	set_CF_OF_mul(res, data_size);
+
+	return res;
 #endif
 }
 
-// need to implement alu_mod before testing
+//div
 uint32_t alu_div(uint64_t src, uint64_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_div(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	uint64_t res = dest / src;
+	return res & mask(data_size);
 #endif
 }
 
-// need to implement alu_imod before testing
+//idiv
 int32_t alu_idiv(int64_t src, int64_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_idiv(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	int64_t res = dest / src;
+	return (int32_t) sign_ext((uint32_t)res & mask(data_size),data_size);
 #endif
 }
 
+//mod
 uint32_t alu_mod(uint64_t src, uint64_t dest)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_mod(src, dest);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	uint32_t res = dest % src;
+	return res;
 #endif
 }
 
+//imod
 int32_t alu_imod(int64_t src, int64_t dest)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_imod(src, dest);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	int32_t res = dest % src;
+	return res;
 #endif
 }
 
