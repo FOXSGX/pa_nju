@@ -181,7 +181,6 @@ uint32_t internal_float_add(uint32_t b, uint32_t a)
 	uint32_t exp_a = fa.exponent == 0 ? 1 : fa.exponent;
 	uint32_t exp_b = fb.exponent == 0 ? 1 : fb.exponent;
 	shift = exp_b - exp_a;
-	assert(shift >= 0);
 
 	sig_a = (sig_a << 3); // guard, round, sticky
 	sig_b = (sig_b << 3);
