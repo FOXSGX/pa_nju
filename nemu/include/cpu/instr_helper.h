@@ -167,7 +167,7 @@ void print_asm_3(char *instr, char *suffix, uint8_t len, OPERAND *opr_1, OPERAND
 static inline bool inv_cc();
 
 #define condition_e \
-	inv_cc()
+	cpu.eflags.ZF
 
 #define condition_a \
 	inv_cc()
@@ -191,10 +191,10 @@ static inline bool inv_cc();
 	inv_cc()
 
 #define condition_ne \
-	inv_cc()
+	!cpu.eflags.ZF
 
 #define condition_na \
-	inv_cc()
+	cpu.eflags.CF || cpu.eflags.ZF
 
 #define condition_no \
 	inv_cc()
@@ -206,7 +206,7 @@ static inline bool inv_cc();
 	inv_cc()
 
 #define condition_g \
-	inv_cc()
+	!cpu.eflags.ZF && (cpu.eflags.SF == cpu.eflags.OF)
 
 #define condition_ge \
 	inv_cc()
@@ -215,7 +215,7 @@ static inline bool inv_cc();
 	inv_cc()
 
 #define condition_le \
-	inv_cc()
+	cpu.eflags.ZF || (cpu.eflags.SF != cpu.eflags.OF)
 
 #define condition_ecxz \
 	cpu.ecx == 0
