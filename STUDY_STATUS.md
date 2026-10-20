@@ -2,13 +2,31 @@
 
 这份文件记录换机器时需要知道的状态。每次完成一个学习步骤后，更新“最近进度”“验证情况”和“下一步”，再与代码一起提交、推送。
 
-## 当前状态（2026-10-13）
+## 当前状态（2026-10-20，Windows）
 
-- 阶段：PA2-1，指令解码与执行，正在进行中。
-- 最近同步点：`405148a`（`WIP: sync PA2-1 instruction progress`）。该提交包含指令实现、声明及操作码表接线的当前工作，共 18 个文件；这是进度快照，不代表 PA2-1 已完成。
-- 涉及的指令源文件：`add.c`、`cmp.c`、`inc.c`、`jmp.c`、`lea.c`、`push.c`、`sub.c`、`test.c`；另有对应声明、`instr_helper.h` 和 `opcode.c` 的改动。
-- 验证情况：同步时只检查了 Git 差异并完成推送，没有运行编译或测试。上述实现的正确性仍需逐项验证。
-- 下一步：按 PA2-1 课件顺序继续学习；先确认当前代码对应的练习点，再对已写指令做编译和有针对性的测试。执行逻辑仍由用户练习实现，助手可检查并处理已授权的机械接线。
+- 阶段：PA2-1 的代码、课程测试与实验报告整理已完成。
+- 最近进度：完成算术、逻辑和比较指令的宏实现，补齐栈操作、调用、返回及条件判断，并接入主操作码表、双字节表和 group 表。
+- 最后停点：`hello-str` 使用 `FF /4` 间接跳转；已在 `jmp.c` 增加 `jmp_near_indirect`，读取寄存器或内存中的绝对目标地址，并补偿执行循环随后增加的指令长度及前缀长度。
+- 本次用户授权：用户明确要求助手补齐剩余条件宏与最后的指令实现。今后的教学仍按 `AGENTS.md` 的默认分工进行。
+- 最终验证：完整重新编译成功；按 `Makefile` 的 `test_pa-2-1` 列表逐一执行全部 31 个用例，结果为 **30 个 HIT GOOD TRAP、`test-float` 按课程要求 HIT BAD TRAP、0 个失败**。`hello-str` 的 Good Trap 地址为 `0x000300d8`。
+- 先前同步点：`405148a`（`WIP: sync PA2-1 instruction progress`）是旧的进度快照；本文件的最新结果以此次实际编译、测试为准。
+- 实验报告：`reports/PA2-1实验报告.md` 保存可版本管理的正文；Windows 上另生成三页 Word 文件 `D:\NEMUcodes\output\doc\PA2-1实验报告_251220035.docx`。署名沿用已有 PA1 报告的胡展赫、251220035，包含实现过程、三道思考题和实际测试结论。Word 文件通过本机 Microsoft Word 导出预览并逐页检查；该附件位于仓库外，换机器时需单独复制。
+
+### 验证命令与环境
+
+在仓库根目录使用 WSL。旧工程在当前 GCC 下需要明确指定 GNU C11 和 32 位编译、链接参数：
+
+```powershell
+wsl make -B -C nemu -j4 'CFLAGS=-ggdb3 -MMD -MP -Wall -Werror -O2 -std=gnu11 -m32 -I./include -I../include -I../libs -I../libs/nemu-ref/include' 'LDFLAGS=-m32 -lreadline -lSDL'
+wsl ./nemu/nemu --autorun --testcase hello-str
+```
+
+完整回归对 `Makefile` 中 `test_pa-2-1` 列出的每个用例分别执行上述 `--testcase` 命令。`test-float` 的验收结果是 Bad Trap，其他 30 项应为 Good Trap。配置中的 `NEMU_REF_INSTR` 保持关闭。根目录的 `make test_pa-2-1` 会执行自动 Git 提交，本次通过逐项运行测试完成验证。
+
+### 下一步
+
+- 提交前核对课程要求的报告格式及署名。三道思考题已整理，代码验证日期为2026-10-19，报告整理日期为2026-10-20。
+- 同步到其他机器前，检查并保存本次代码和进度。
 
 ## 换机器时
 

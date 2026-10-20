@@ -1,16 +1,19 @@
 #include "cpu/instr.h"
 
-make_instr_func(add_r2rm_v)
+static void instr_execute_2op() 
 {
-    int len = 1;
-    OPERAND rm, r;
-    rm.data_size = data_size;
-    r.data_size = data_size;
-    len += modrm_r_rm(eip + 1, &r, &rm);
-    operand_read(&r);
-    operand_read(&rm);
-
-    rm.val = alu_add(r.val, rm.val, data_size);
-    operand_write(&rm);
-    return len;
+	operand_read(&opr_src);
+    operand_read(&opr_dest);
+	opr_dest.val = alu_add(sign_ext(opr_src.val, opr_src.data_size), opr_dest.val, opr_dest.data_size);
+	operand_write(&opr_dest);
 }
+
+make_instr_impl_2op(add, r, rm, v)
+make_instr_impl_2op(add, i, rm ,bv)
+make_instr_impl_2op(add, r, rm, b)
+make_instr_impl_2op(add, rm, r, b)
+make_instr_impl_2op(add, rm, r, v)
+make_instr_impl_2op(add, i, rm, b)
+make_instr_impl_2op(add, i, rm, v)
+make_instr_impl_2op(add, i, a, b)
+make_instr_impl_2op(add, i, a, v)

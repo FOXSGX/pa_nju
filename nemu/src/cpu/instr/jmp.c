@@ -37,3 +37,19 @@ make_instr_func(jmp_short)
 
         return 2;
 }
+
+make_instr_func(jmp_near_indirect)
+{
+    int len = 1;
+    OPERAND rm;
+    rm.data_size = data_size;
+    len += modrm_rm(eip + 1, &rm);
+    operand_read(&rm);
+
+    print_asm_1("jmp", "", len, &rm);
+
+    // The execution loop also adds any prefixes and the returned length.
+    uint32_t prefix_len = eip - cpu.eip;
+    cpu.eip = rm.val - (prefix_len + len);
+    return len;
+}

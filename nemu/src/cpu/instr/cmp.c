@@ -1,72 +1,19 @@
 #include "cpu/instr.h"
 
-make_instr_func(cmp_i2rm_bv)
+static void instr_execute_2op()
 {
-    int len = 1;
-    OPERAND rm, imm;
-    rm.data_size = data_size;
-    len += modrm_rm(eip + 1, &rm);
-    imm.data_size = 8;
-    imm.type = OPR_IMM;
-    imm.addr = eip + len;
-    imm.sreg = SREG_CS;
-    
-    operand_read(&rm);
-    operand_read(&imm);
+    operand_read(&opr_src);
+    operand_read(&opr_dest);
 
-    alu_sub(sign_ext(imm.val, 8), rm.val, data_size);
-    return len + 1;
+    alu_sub(sign_ext(opr_src.val, opr_src.data_size), opr_dest.val,opr_dest.data_size);
 }
 
-make_instr_func(cmp_i2a_b)
-{
-    int len = 1;
-    OPERAND rm, imm;
-    rm.data_size = 8;
-    rm.type = OPR_REG;
-    rm.addr = REG_AL;
-    imm.data_size = 8;
-    imm.type = OPR_IMM;
-    imm.addr = eip + 1;
-    imm.sreg = SREG_CS;
-
-    operand_read(&rm);
-    operand_read(&imm);
-
-    alu_sub(imm.val, rm.val, 8);
-    return len + 1;
-
-}
-
-make_instr_func(cmp_i2rm_v)
-{
-    int len = 1;
-    OPERAND imm, rm;
-    imm.type = OPR_IMM;
-    imm.sreg = SREG_CS;
-    imm.data_size = data_size;
-    rm.data_size = data_size;
-    len += modrm_rm(eip + 1, &rm);
-    imm.addr = eip + len;
-
-    operand_read(&rm);
-    operand_read(&imm);
-
-    alu_sub(imm.val, rm.val, data_size);
-    return len + data_size / 8;
-}
-
-make_instr_func(cmp_r2rm_v)
-{
-    int len = 1;
-    OPERAND r, rm;
-    r.data_size = data_size;
-    rm.data_size = data_size;
-    len += modrm_r_rm(eip + 1, &r, &rm);
-
-    operand_read(&r);
-    operand_read(&rm);
-
-    alu_sub(r.val, rm.val, data_size);
-    return len;
-}
+make_instr_impl_2op(cmp, i, rm, bv)
+make_instr_impl_2op(cmp, i, a, b)
+make_instr_impl_2op(cmp, i, rm, v)
+make_instr_impl_2op(cmp, r, rm, v)
+make_instr_impl_2op(cmp, r, rm, b)
+make_instr_impl_2op(cmp, rm, r, b)
+make_instr_impl_2op(cmp, rm, r, v)
+make_instr_impl_2op(cmp, i, rm, b)
+make_instr_impl_2op(cmp, i, a, v)

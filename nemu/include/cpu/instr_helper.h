@@ -170,25 +170,25 @@ static inline bool inv_cc();
 	cpu.eflags.ZF
 
 #define condition_a \
-	inv_cc()
+	(!cpu.eflags.CF && !cpu.eflags.ZF)
 
 #define condition_ae \
-	inv_cc()
+	(!cpu.eflags.CF)
 
 #define condition_b \
-	inv_cc()
+	cpu.eflags.CF
 
 #define condition_be \
-	inv_cc()
+	(cpu.eflags.CF || cpu.eflags.ZF)
 
 #define condition_o \
-	inv_cc()
+	cpu.eflags.OF
 
 #define condition_p \
-	inv_cc()
+	cpu.eflags.PF
 
 #define condition_s \
-	inv_cc()
+	cpu.eflags.SF
 
 #define condition_ne \
 	!cpu.eflags.ZF
@@ -197,22 +197,22 @@ static inline bool inv_cc();
 	cpu.eflags.CF || cpu.eflags.ZF
 
 #define condition_no \
-	inv_cc()
+	(!cpu.eflags.OF)
 
 #define condition_np \
-	inv_cc()
+	(!cpu.eflags.PF)
 
 #define condition_ns \
-	inv_cc()
+	(!cpu.eflags.SF)
 
 #define condition_g \
 	!cpu.eflags.ZF && (cpu.eflags.SF == cpu.eflags.OF)
 
 #define condition_ge \
-	inv_cc()
+	cpu.eflags.SF == cpu.eflags.OF
 
 #define condition_l \
-	inv_cc()
+	cpu.eflags.SF != cpu.eflags.OF
 
 #define condition_le \
 	cpu.eflags.ZF || (cpu.eflags.SF != cpu.eflags.OF)
