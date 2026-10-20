@@ -28,7 +28,9 @@ wsl ./nemu/nemu --autorun --testcase hello-str
 - 提交前核对课程要求的报告格式及署名。三道思考题已整理，代码验证日期为2026-10-19，报告整理日期为2026-10-20。
 - 2026-10-20：已同步到 NEMU 平台 `/home/pa251220035/pa_nju`，保留平台原有历史与 PA1 成绩记录。平台默认环境重新编译并运行全部31项测试：30项 GOOD、test-float 预期 BAD、0项失败。日志位于平台 `~/temp/pa2-1-*.log`。
 - 平台版本来自本地成果提交 `378b3dc`。Word报告副本放在平台 `~/temp/PA2-1_report_251220035.docx`。
-- 下一步：在平台执行 `make submit_pa-2-1` 正式提交；本次仅同步与验证，尚未执行正式提交。
+- 2026-10-20：用户确认声明后，已在平台运行 `make submit_pa-2-1`。平台返回 `Submission sequence completed`，完整性检查、重编译与打包通过。提交测试：30项GOOD，test-float预期BAD。
+- 压缩包：`~/submit/251220035_pa-2-1_1792481841.tar.bz2`。本地副本：`D:/NEMUcodes/submit/251220035_pa-2-1_1792481841.tar.bz2`。
+- 下一步：上传压缩包至cslab备用窗口，并上传报告；网页上传尚未完成。
 
 ## 换机器时
 
